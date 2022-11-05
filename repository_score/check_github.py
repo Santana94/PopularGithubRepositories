@@ -19,14 +19,14 @@ def get_github_repository(repository_name: str) -> Repository:
         raise ValidationError(detail=f"Repository \"{repository_name}\" not found!")
     except GithubException as e:
         logger.error(e)
-        raise APIException(detail="Unexpected error when fetching Github API data!", code=status.HTTP_400_BAD_REQUEST)
+        raise APIException(detail="Unexpected error when fetching Github API data!")
 
 
-def get_repository_score(stargazers_count: float, forks_count: int) -> float:
+def get_repository_score(stargazers_count: int, forks_count: int) -> int:
     return stargazers_count * 1 + forks_count * 2
 
 
-def check_repository_score_is_popular(stargazers_count: float, forks_count: int) -> bool:
+def check_repository_score_is_popular(stargazers_count: int, forks_count: int) -> bool:
     if get_repository_score(stargazers_count=stargazers_count, forks_count=forks_count) >= settings.POPULAR_BASE_SCORE:
         return True
     return False

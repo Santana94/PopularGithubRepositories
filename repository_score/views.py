@@ -8,7 +8,7 @@ from . import check_github
 
 
 class GithubRepositoryScoreViewSet(APIView):
-    def get(self, request):
+    def post(self, request):
         repository_serializer = serializers.GithubRepositorySerializer(data=request.POST)
         repository_serializer.is_valid(raise_exception=True)
         github_repository = check_github.get_github_repository(
