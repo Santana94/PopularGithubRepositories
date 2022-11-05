@@ -3,7 +3,6 @@ import logging
 import github
 from github.GithubException import GithubException, UnknownObjectException
 from github.Repository import Repository
-from rest_framework import status
 from rest_framework.exceptions import ValidationError, APIException
 
 from popular_github.settings import settings

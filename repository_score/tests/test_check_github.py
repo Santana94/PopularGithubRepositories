@@ -1,7 +1,4 @@
-from collections import namedtuple
-
 import pytest
-from github import GithubException
 from rest_framework.exceptions import ValidationError, APIException
 
 from repository_score import check_github
