@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0"]
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_swagger',
     'drf_yasg',
 
     # Project Defined Apps
@@ -130,4 +130,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Environment Variables
 GITHUB_ACCESS_TOKEN = os.environ.get("GITHUB_ACCESS_TOKEN")
-POPULAR_BASE_SCORE = float(os.environ.get("POPULAR_BASE_SCORE"))
+POPULAR_BASE_SCORE = int(os.environ.get("POPULAR_BASE_SCORE"))

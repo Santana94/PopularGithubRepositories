@@ -11,9 +11,9 @@ logger = logging.getLogger('repository_score')
 
 
 def get_github_repository(repository_name: str) -> Repository:
-    g = github.Github(settings.GITHUB_ACCESS_TOKEN)
+    github_instance = github.Github(settings.GITHUB_ACCESS_TOKEN)
     try:
-        return g.get_repo(repository_name)
+        return github_instance.get_repo(repository_name)
     except UnknownObjectException:
         raise ValidationError(detail=f"Repository \"{repository_name}\" not found!")
     except GithubException as e:
