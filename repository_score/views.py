@@ -8,8 +8,8 @@ from . import check_github
 
 
 class GithubRepositoryScoreViewSet(APIView):
-    def post(self, request):
-        repository_serializer = serializers.GithubRepositorySerializer(data=request.POST)
+    def get(self, request):
+        repository_serializer = serializers.GithubRepositorySerializer(data=request.GET)
         repository_serializer.is_valid(raise_exception=True)
         github_repository = check_github.get_github_repository(
             repository_name=repository_serializer.data["repository_name"]

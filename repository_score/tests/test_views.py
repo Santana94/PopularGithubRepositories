@@ -18,24 +18,24 @@ def test_github_repository_score_view(
     mocker.patch(
         "repository_score.check_github.github_instance.get_repo", return_value=fake_get_repo
     )
-    response = client.post(reverse("check_repository_is_popular"), data={"repository_name": "something"})
+    response = client.get(reverse("check_repository_is_popular") + "?repository_name=something")
     assert response.status_code == status.HTTP_200_OK
     assert response.data == {'repository_is_popular': expected_is_popular}
 
 
-@pytest.mark.parametrize("data, expected_status_code, expected_response_data", [
-    ({"repository_name": "something"}, status.HTTP_200_OK, {'repository_is_popular': False}),
-    ({"something": "something"}, status.HTTP_400_BAD_REQUEST, {'repository_name': ['This field is required.']}),
-    ({"repository_name": ""}, status.HTTP_400_BAD_REQUEST, {'repository_name': ['This field may not be blank.']}),
+@pytest.mark.parametrize("query_params, expected_status_code, expected_response_data", [
+    ("?repository_name=something", status.HTTP_200_OK, {'repository_is_popular': False}),
+    ("?something=something", status.HTTP_400_BAD_REQUEST, {'repository_name': ['This field is required.']}),
+    ("?repository_name=", status.HTTP_400_BAD_REQUEST, {'repository_name': ['This field may not be blank.']}),
 ])
 def test_github_repository_score_view_payload(
-    client, mocker, fake_repository_class, expected_status_code, data, expected_response_data
+    client, mocker, fake_repository_class, expected_status_code, query_params, expected_response_data
 ):
     mocker.patch(
         "repository_score.check_github.github_instance.get_repo",
         return_value=fake_repository_class(stargazers_count=30, forks_count=10)
     )
-    response = client.post(reverse("check_repository_is_popular"), data=data)
+    response = client.get(reverse("check_repository_is_popular") + query_params)
     assert response.status_code == expected_status_code
     assert response.data == expected_response_data
 
@@ -45,7 +45,7 @@ def test_github_repository_score_view_unknown_object_exception(client, mocker):
         "repository_score.check_github.github_instance.get_repo",
         side_effect=UnknownObjectException(data={"message": "something"}, status=404, headers=None)
     )
-    response = client.post(reverse("check_repository_is_popular"), data={"repository_name": "something"})
+    response = client.get(reverse("check_repository_is_popular") + "?repository_name=something")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data[0] == "Repository \"something\" not found!"
 
@@ -55,7 +55,7 @@ def test_github_repository_score_view_with_github_exception(client, mocker):
         "repository_score.check_github.github_instance.get_repo",
         side_effect=GithubException(data={"message": "something"}, status=500, headers=None)
     )
-    response = client.post(reverse("check_repository_is_popular"), data={"repository_name": "something"})
+    response = client.get(reverse("check_repository_is_popular") + "?repository_name=something")
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert response.data["detail"] == "Unexpected error when fetching Github API data!"
 
