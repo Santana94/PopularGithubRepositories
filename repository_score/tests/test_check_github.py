@@ -1,4 +1,5 @@
 import pytest
+from github import UnknownObjectException, GithubException
 from rest_framework.exceptions import ValidationError, APIException
 
 from repository_score import check_github
@@ -32,16 +33,18 @@ def test_get_repository_score(stargazers_count, forks_count, expected_score):
     assert repository_score == expected_score
 
 
-def test_get_github_repository(mocker, fake_github, fake_repository_class):
-    mocker.patch("repository_score.check_github.github.Github", return_value=fake_github())
+def test_get_github_repository(mocker, fake_repository_class):
+    fake_get_repo = fake_repository_class(stargazers_count=30, forks_count=10)
+    mocker.patch("repository_score.check_github.github_instance.get_repo", return_value=fake_get_repo)
     repository = check_github.get_github_repository(repository_name="Somethinf")
 
     assert isinstance(repository, fake_repository_class)
 
 
-def test_get_github_repository_with_unknown_object_exception(mocker, fake_github_raising_unknown_object_exception):
+def test_get_github_repository_with_unknown_object_exception(mocker):
     mocker.patch(
-        "repository_score.check_github.github.Github", return_value=fake_github_raising_unknown_object_exception
+        "repository_score.check_github.github_instance.get_repo",
+        side_effect=UnknownObjectException(data={"message": "something"}, status=404, headers=None)
     )
 
     with pytest.raises(ValidationError) as error:
@@ -50,9 +53,13 @@ def test_get_github_repository_with_unknown_object_exception(mocker, fake_github
     assert error.value.detail[0] == "Repository \"Something\" not found!"
 
 
-def test_get_github_repository_with_github_exception(mocker, github_exception, fake_github_raising_github_exception):
+def test_get_github_repository_with_github_exception(mocker):
+    github_exception = GithubException(data={"message": "something"}, status=500, headers=None)
     mocked_logger_error = mocker.patch("repository_score.check_github.logger.error")
-    mocker.patch("repository_score.check_github.github.Github", return_value=fake_github_raising_github_exception)
+    mocker.patch(
+        "repository_score.check_github.github_instance.get_repo",
+        side_effect=github_exception
+    )
 
     with pytest.raises(APIException) as error:
         check_github.get_github_repository(repository_name="Existent")

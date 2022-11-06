@@ -8,10 +8,10 @@ from rest_framework.exceptions import ValidationError, APIException
 from popular_github.settings import settings
 
 logger = logging.getLogger('repository_score')
+github_instance = github.Github(settings.GITHUB_ACCESS_TOKEN)
 
 
 def get_github_repository(repository_name: str) -> Repository:
-    github_instance = github.Github(settings.GITHUB_ACCESS_TOKEN)
     try:
         return github_instance.get_repo(repository_name)
     except UnknownObjectException:
